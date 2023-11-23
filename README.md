@@ -10,11 +10,11 @@ cd jobarouter/
 npm start
 ```
 Backend Server Configurations:<br>
-Dynamic Server for Careers database listing:<br>
+<p>Dynamic Server for Careers database listing:<br></p>
 ```js
 npm run start-dyn
 ```
-Dynamic Server for Careers database listing, with authentication (WIP):<br>
+<p></p>Dynamic Server for Careers database listing, with authentication (WIP):<br></p>
 ```js
 npm run start-auth
 ```
