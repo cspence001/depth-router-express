@@ -23,14 +23,14 @@ localforage.config({
 export default function Careers() {
 
   const careersData = useLoaderData()
-  const keys = Object.keys(careersData)
-  const values = Object.values(careersData)
-  const uniquekeyvals = Object.keys(careersData[0])
+  // const keys = Object.keys(careersData)
+  // const values = Object.values(careersData)
+  // const uniquekeyvals = Object.keys(careersData[0])
 
-  console.log(careersData); 
-  console.log(keys);
-  console.log(values); 
-  console.log(uniquekeyvals);
+  // console.log(careersData); 
+  // console.log(keys);
+  // console.log(values); 
+  // console.log(uniquekeyvals);
 
   //individual k,v storage
   var careersStoreTitle = localforage.createInstance({
@@ -64,6 +64,8 @@ export default function Careers() {
     return careersStoreFullParsed.setItem(x.id.toString(), x)
   })
 
+  Promise.all(promises, promises2, promises3, promisesParsed);
+
   //full array
   var careersStoreFull = localforage.createInstance({
     name: "dbCareer",
@@ -71,40 +73,44 @@ export default function Careers() {
   });
   careersStoreFull.setItem("jobData", careersData)
 
+
   //test retrieval
-  var testRetrieve = careersStoreFullParsed.getItem('2', function(err, value) {
+  function testRetrieve(){careersStoreFullParsed.getItem('2').then(function(value) {
     console.log(value)
+  }).catch(function(err) {
+    console.log(err);
   })
-
-  Promise.all(promises, promises2, promises3, promisesParsed, testRetrieve);
-
+}
   //test remove
-  var testRemove= careersStoreFullParsed.removeItem('3').then(function() {
+  function testRemove(){careersStoreFullParsed.removeItem('3').then(function() {
     console.log('Key is cleared!');
-}).catch(function(err) {
-    console.log(err);
-});
-  Promise.all(testRemove);
+  }).catch(function(err) {
+      console.log(err);
+  });
+}
   //test keys
-  var testKeys= careersStoreFullParsed.keys().then(function(keys) {
+  function testKeys(){ careersStoreFullParsed.keys().then(function(keys) {
     console.log(keys);
-}).catch(function(err) {
-    console.log(err);
-});
+  }).catch(function(err) {
+      console.log(err);
+  });
+};
 
-Promise.all(testKeys);
-  return (
-    
-    <div className="careers">
-      { careersData.map(career => (
-        <Link to={ career.id.toString()} key={career.id}>
-          <p>{career.title}</p>
-          <p>Based in { career.location }</p>
-          </Link>
-      ) )}
 
-    </div>
+return (
     
+  <div className="careers">
+    { careersData.map(career => (
+      <Link to={ career.id.toString()} key={career.id}>
+        <p>{career.title}</p>
+        <p>Based in { career.location }</p>
+        </Link>
+    ) )}
+    <button onClick={() => testRetrieve(null)}>Retrieve</button>
+    <button onClick={() => testRemove(null)}>Remove</button>
+    <button onClick={() => testKeys(null)}>Keys</button>
+  </div>
+  
   )
 };
 

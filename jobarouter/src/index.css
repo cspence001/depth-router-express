@@ -24,6 +24,7 @@ button {
   color: white;
   background: var(--primary);
   cursor: pointer;
+  margin: 8px;
 }
 
 /* navbar */
