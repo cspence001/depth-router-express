@@ -9,8 +9,9 @@
     "start-auth": "node server-dyn-auth/index.js",
     "server": "nodemon server/index.js",
     "client": "npm start --prefix jobarouter",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run start-dyn\" \"npm run client\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run build --prefix client"
   },
   "keywords": [],
   "author": "",
