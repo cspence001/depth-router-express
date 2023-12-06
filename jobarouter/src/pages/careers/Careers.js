@@ -97,6 +97,52 @@ export default function Careers() {
       console.log(err);
   });
 };
+  //test clear
+  function clearAppDB(){localforage.clear().then(function() {
+    // Run this code once the database has been entirely deleted.
+    console.log('Database is now empty.');
+  }).catch(function(err) {
+    console.log(err);
+  });
+};
+  function clearCareerDB(){careersStoreFullParsed.clear().then(function() {
+    console.log('Database is now empty.');
+  }).catch(function(err) {
+    console.log(err);
+  });
+};
+
+//test drops
+function testDropSpecificStore(){
+  localforage.dropInstance({
+  name: "dbCareer",
+  storeName: "careersStoreTitle"
+}).then(function() {
+  console.log('Dropped CareersStoreTitle')
+});
+}
+
+function testDropSpecificDB(){
+localforage.dropInstance({
+  name: "dbCareer"
+}).then(function() {
+  console.log('Dropped dbCareer database')
+});
+}
+
+function testIterate(){
+  careersStoreFullParsed.iterate(function(value, key, iterationNumber) {
+    // Resulting key/value pair -- this callback
+    // will be executed for every item in the
+    // database.
+    console.log([key, value]);
+}).then(function() {
+    console.log('Iteration has completed');
+}).catch(function(err) {
+    // This code runs if there were any errors
+    console.log(err);
+});
+}
 
 return (
   <div className="careers">
@@ -106,10 +152,15 @@ return (
         <p>Based in { career.location }</p>
         </Link>
     ) )}
-    <button onClick={() => promisesParsed()}>Create Parse DB</button>
+    <button onClick={() => promisesParsed()}>CreateParseDB</button>
     <button onClick={() => testRetrieve()}>Retrieve</button>
     <button onClick={() => testRemove()}>Remove</button>
     <button onClick={() => testKeys()}>Keys</button>
+    <button onClick={() => clearAppDB()}>ClearAppDB</button>
+    <button onClick={() => clearCareerDB()}>ClearCareerDB</button>
+    <button onClick={() => testDropSpecificStore()}>DropCareerStoreTitle</button>
+    <button onClick={() => testDropSpecificDB()}>DropCareerDBInstance</button>
+    <button onClick={() => testIterate()}>IterateParseDB</button>
   </div>
   )
 };
@@ -128,8 +179,9 @@ export const careersDataLoader = async () => {
     localforage.setDriver([localforage.INDEXEDDB]);
     localforage.setItem(filepath,jsonObjects); //sets filepath as key (db: myApp, table: keyvaluepairs, "key": "http://localhost:5000/careers")
 
-    let forceDB = localforage.getItem(filepath)
-    return forceDB;
+    // let forceDB = localforage.getItem(filepath)
+    // return forceDB;
+    return jsonObjects;
   
 }
 
