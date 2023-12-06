@@ -55,16 +55,7 @@ export default function Careers() {
     return careersStoreLocation.setItem(x.id.toString(), x.location);
   });
 
-  //full array, parsed by key
-  var careersStoreFullParsed = localforage.createInstance({
-    name: "dbCareer",
-    storeName: 'careersStoreFullParsed',
-  });
-  var promisesParsed = careersData.map(function(x) {
-    return careersStoreFullParsed.setItem(x.id.toString(), x)
-  })
-
-  Promise.all(promises, promises2, promises3, promisesParsed);
+  Promise.all(promises, promises2, promises3);
 
   //full array
   var careersStoreFull = localforage.createInstance({
@@ -73,13 +64,24 @@ export default function Careers() {
   });
   careersStoreFull.setItem("jobData", careersData)
 
+  //full array, parsed by key
+  var careersStoreFullParsed = localforage.createInstance({
+    name: "dbCareer",
+    storeName: 'careersStoreFullParsed',
+  });
+
+  //fill DB
+  function promisesParsed(){careersData.map(function(x) {
+    return careersStoreFullParsed.setItem(x.id.toString(), x)
+  });
+};
 
   //test retrieval
   function testRetrieve(){careersStoreFullParsed.getItem('2').then(function(value) {
     console.log(value)
   }).catch(function(err) {
-    console.log(err);
-  })
+      console.log(err);
+  });
 }
   //test remove
   function testRemove(){careersStoreFullParsed.removeItem('3').then(function() {
@@ -96,9 +98,7 @@ export default function Careers() {
   });
 };
 
-
 return (
-    
   <div className="careers">
     { careersData.map(career => (
       <Link to={ career.id.toString()} key={career.id}>
@@ -106,14 +106,13 @@ return (
         <p>Based in { career.location }</p>
         </Link>
     ) )}
-    <button onClick={() => testRetrieve(null)}>Retrieve</button>
-    <button onClick={() => testRemove(null)}>Remove</button>
-    <button onClick={() => testKeys(null)}>Keys</button>
+    <button onClick={() => promisesParsed()}>Create Parse DB</button>
+    <button onClick={() => testRetrieve()}>Retrieve</button>
+    <button onClick={() => testRemove()}>Remove</button>
+    <button onClick={() => testKeys()}>Keys</button>
   </div>
-  
   )
 };
-
 
 // loader function
 export const careersDataLoader = async () => {
@@ -125,9 +124,12 @@ export const careersDataLoader = async () => {
       throw Error('Could not fetch the careers')
     }
     let jsonObjects = await res.json();
+
     localforage.setDriver([localforage.INDEXEDDB]);
-    localforage.setItem(filepath,jsonObjects);
-    return jsonObjects;
+    localforage.setItem(filepath,jsonObjects); //sets filepath as key (db: myApp, table: keyvaluepairs, "key": "http://localhost:5000/careers")
+
+    let forceDB = localforage.getItem(filepath)
+    return forceDB;
   
 }
 
