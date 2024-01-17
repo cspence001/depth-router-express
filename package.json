@@ -20,6 +20,7 @@
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "fs.promises": "^0.1.2"
+    "fs.promises": "^0.1.2",
+    "pako": "^2.1.0"
   }
 }

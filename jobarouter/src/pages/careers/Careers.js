@@ -1,22 +1,23 @@
 import { useLoaderData, Link } from "react-router-dom"
-// import { SetItemStore } from "../../components/Forager"
 // import { memoryStorageDriver } from "localforage-memoryStorageDriver"
-// import { setup } from 'axios-cache-adapter'
+// import DataComponent from "../../components/DataComponent";
 import * as localforage from "localforage"
 import "localforage-getitems";
 import "localforage-setitems";
 import { extendPrototype as extendPrototypeSet } from "localforage-setitems";
 import { extendPrototype as extendPrototypeGet } from "localforage-getitems";
+import CheckboxSelect from "../../components/CheckboxComponentSelect";
+import FetchAndCompressButton from "../../components/handleCompression";
 extendPrototypeSet(localforage);
 extendPrototypeGet(localforage);
 
+
+// Configure localForage at the beginning
 localforage.config({
-  driver      : localforage.INDEXEDDB, // Force WebSQL; same as using setDriver()
-  name        : 'myApp', // database
-  version     : 1.0,
-  // size        : 4980736, // Size of database, in bytes. WebSQL-only for now. 
-  // storeName   : 'careersStore', // Should be alphanumeric, with underscores. // name of key-value table in database
-  description : 'some description'
+  driver: localforage.INDEXEDDB,
+  name: 'myApp',
+  version: 1.0,
+  storeName: 'myStore',
 });
 
 
@@ -144,6 +145,38 @@ function testIterate(){
 });
 }
 
+
+// function testDeflate(){
+//   const worker = new Worker(workerScript); 
+//   worker.onmessage = (event) => {
+//     const compressedData = event.data;
+//     localforage.setItem('careersData', compressedData);
+//   };
+//   worker.postMessage({ action: 'compress', data: careersData });
+// }
+
+// function testInflate(){
+//   localforage.getItem('careersData').then(function(value){
+//   const worker = new Worker(workerScript); 
+//   worker.onmessage = (event) => {
+//     const decompressedData = event.data;
+//     console.log(decompressedData)
+//   };
+//     worker.postMessage({ action: 'decompress', data: value });
+//   })
+// }
+
+// function testInflateComp(){
+//   fetchDataBasedOnInput('careersData')
+// }
+
+// function testClear(){
+//   const dataComponentInstance = new DataComponent();
+//   // Example: Clear data when deselected
+//   dataComponentInstance.clearData();
+// }
+
+
 return (
   <div className="careers">
     { careersData.map(career => (
@@ -159,30 +192,36 @@ return (
     <button onClick={() => clearAppDB()}>ClearAppDB</button>
     <button onClick={() => clearCareerDB()}>ClearCareerDB</button>
     <button onClick={() => testDropSpecificStore()}>DropCareerStoreTitle</button>
-    <button onClick={() => testDropSpecificDB()}>DropCareerDBInstance</button>
+    <button onClick={() => testDropSpecificDB()}>DropCareerDB</button>
     <button onClick={() => testIterate()}>IterateParseDB</button>
+    {/* <button onClick={() => testDeflate()}>DeflateAppDB</button> */}
+    {/* <button onClick={() => testInflate()}>InflateAppDB</button> */}
+    {/* <button onClick={() => testInflateComp()}>InflateCompAppDB</button> */}
+    {/* <button onClick={() => testClear()}>ClearAppDB</button> */}
+    <FetchAndCompressButton label={'fetchCareers'} dataKey={'careersData'} filePath={'http://localhost:5000/careers'} />
+    <FetchAndCompressButton label={'fetchState'} dataKey={'stateData'} filePath={'http://localhost:5000/state'} />
+    <CheckboxSelect label="Value 1" dataKey="careersData" />
+    <CheckboxSelect label="Value 2" dataKey="stateData" />
   </div>
   )
 };
 
-// loader function
+
 export const careersDataLoader = async () => {
-    // const api = await configureAxios();
-    const filepath = 'http://localhost:5000/careers'
-    const res = await fetch(filepath)
-    
-    if (!res.ok){
-      throw Error('Could not fetch the careers')
-    }
+  const filepath = 'http://localhost:5000/careers';
+  const res = await fetch(filepath);
+
+  if (!res.ok) {
+    throw Error('Could not fetch the careers');
+  }
+
+  try {
+    // Fetch JSON data
     let jsonObjects = await res.json();
 
-    localforage.setDriver([localforage.INDEXEDDB]);
-    localforage.setItem(filepath,jsonObjects); //sets filepath as key (db: myApp, table: keyvaluepairs, "key": "http://localhost:5000/careers")
-
-    // let forceDB = localforage.getItem(filepath)
-    // return forceDB;
     return jsonObjects;
-  
-}
-
-
+  } catch (error) {
+    console.error('Error processing data:', error);
+    throw Error('Error processing data');
+  }
+};

@@ -1,6 +1,10 @@
 # macOS
 .DS_Store
 
+# data tests
+/server-dyn/database/24pt.json
+/server-dyn/database/51block.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

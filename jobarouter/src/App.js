@@ -23,6 +23,7 @@ import RootLayout from "./layouts/RootLayout";
 import HelpLayout from "./layouts/HelpLayout";
 import CareersLayout from "./layouts/CareersLayout";
 import CareersError from "./pages/careers/CareersError";
+import FilterContext from "./pages/FilterContext";
 
 
 
@@ -35,6 +36,7 @@ const router = createBrowserRouter(
       <Route path="faq" element={<Faq/>} />
       <Route path="contact" element={<Contact/>} action={contactAction} />
     </Route>
+    <Route path="context" element={<FilterContext/>}/>
 
     <Route path="careers" element={<CareersLayout />} errorElement={<CareersError />}>
         <Route 

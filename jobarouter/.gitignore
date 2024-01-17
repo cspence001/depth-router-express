@@ -23,4 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 #W-I-P
-/src/components/Forager.js
+/src/services/Forager.js
+/src/components/DataComponent.js
+/src/components/InflateComponent.js
+/src/components/SelectComponent.js

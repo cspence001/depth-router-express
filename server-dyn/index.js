@@ -7,6 +7,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const filePath = path.join(__dirname, './database/careers.json');
+const filePath2 = path.join(__dirname, './database/51block.json');
 
 app.use(cors({origin: true}))
 
@@ -33,6 +34,19 @@ app.get('/careers/:id?', (req, res) => {
       res.status(404).json({ error: 'Item not found' });
     }
   } else {
+    // If no dynamic value is provided, return all data
+    res.json(selectArray);
+  }
+});
+app.get('/state', (req, res) => {
+
+  // Read and parse the JSON file
+  const jsonData = JSON.parse(fs.readFileSync(filePath2, 'utf-8'));
+
+  const selectArray = jsonData;
+
+  if (selectArray) {
+
     // If no dynamic value is provided, return all data
     res.json(selectArray);
   }
