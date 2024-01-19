@@ -11,6 +11,7 @@ export default function RootLayout() {
                 <NavLink to="/about">About</NavLink>
                 <NavLink to="/help">Help</NavLink>
                 <NavLink to="/context">Context</NavLink>
+                <NavLink to="/oldcontext">OldContext</NavLink>
                 <NavLink to="/careers">Careers</NavLink>
             </nav>
             <Breadcrumbs />

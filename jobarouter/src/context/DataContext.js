@@ -4,14 +4,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const DataContext = createContext();
 
 const DataProvider = ({ children }) => {
-  const [data, setData] = useState([
-    // { id: 1, name: 'Item 1', category: 'Category A' },
-    // { id: 2, name: 'Item 2', category: 'Category B' },
-    // { id: 3, name: 'Item 3', category: 'Category A' },
-    // Add more data as needed
-  ]);
-//newest
-useEffect(() => {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
     const fetchDataFromIndexedDB = async () => {
       try {
         const db = await openDatabase();
@@ -37,9 +32,11 @@ useEffect(() => {
 
       request.onupgradeneeded = function (event) {
         const db = event.target.result;
+
+        // Create an object store with an index
         const objectStore = db.createObjectStore('yourObjectStore', { keyPath: 'id' });
         objectStore.createIndex('category', 'category', { unique: false });
-
+        objectStore.createIndex('type', 'type', { unique: false });
 
         objectStore.transaction.oncomplete = function () {
           resolve(db);
@@ -56,7 +53,7 @@ useEffect(() => {
       };
     });
   };
-
+  
   const addDataToIndexedDB = async (newData) => {
     try {
       const db = await openDatabase();
@@ -78,58 +75,100 @@ useEffect(() => {
     }
   };
 
-  const fetchDataByCategory = async (category) => {
+  const fetchDataByCategoryAndType = async (categoryFilters, typeFilters) => {
     return new Promise((resolve, reject) => {
-        try {
-          openDatabase().then(db => {
-            const transaction = db.transaction(['yourObjectStore'], 'readonly');
-            const objectStore = transaction.objectStore('yourObjectStore');
-            const index = objectStore.index('category');
+      try {
+        openDatabase().then(db => {
+          const transaction = db.transaction(['yourObjectStore'], 'readonly');
+          const objectStore = transaction.objectStore('yourObjectStore');
+          const indexCategory = objectStore.index('category');
+          const indexType = objectStore.index('type');
+
+          let request;
+          let filteredData = [];
   
-            if (category !== undefined) {
-              const range = IDBKeyRange.only(category);
-              const request = index.openCursor(range);
+          if (categoryFilters.length > 0 && typeFilters.length > 0) {
+            // Fetch data by both category and type
+            const categoryRange = IDBKeyRange.bound(categoryFilters[0], categoryFilters[categoryFilters.length - 1]);
+            const typeRange = IDBKeyRange.bound(typeFilters[0], typeFilters[typeFilters.length - 1]);
   
-              const filteredData = [];
-  
-              request.onsuccess = function (event) {
-                const cursor = event.target.result;
-                if (cursor) {
+            // Combine the ranges for both category and type
+            const combinedRange = combineRanges(categoryRange, typeRange);
+
+            request = indexCategory.openCursor(combinedRange);
+            request.onsuccess = function (event) {
+              const cursor = event.target.result;
+              if (cursor) {
+                if (typeFilters.includes(cursor.value.type)) {
                   filteredData.push(cursor.value);
-                  cursor.continue();
-                } else {
-                  resolve(filteredData);
                 }
-              };
+                cursor.continue();
+              } else {
+                resolve(filteredData);
+              }
+            };
+          } else if (categoryFilters.length > 0) {
+            // Fetch data by category only
+            const categoryRange = IDBKeyRange.bound(categoryFilters[0], categoryFilters[categoryFilters.length - 1]);
   
-              request.onerror = function (event) {
-                reject(event.target.error);
-              };
-            } else {
-              // Handle the case where category is undefined (fetch all data)
-              const request = objectStore.getAll();
+            request = indexCategory.openCursor(categoryRange);
+            request.onsuccess = function (event) {
+              const cursor = event.target.result;
+              if (cursor) {
+                filteredData.push(cursor.value);
+                cursor.continue();
+              } else {
+                resolve(filteredData);
+              }
+            };
+          } else if (typeFilters.length > 0) {
+            // Fetch data by type only
+            const typeRange = IDBKeyRange.bound(typeFilters[0], typeFilters[typeFilters.length - 1]);
   
-              request.onsuccess = function (event) {
-                const result = event.target.result;
-                resolve(result || []);
-              };
-  
-              request.onerror = function (event) {
-                reject(event.target.error);
-              };
-            }
-          }).catch(error => {
-            reject(error);
-          });
-        } catch (error) {
+            request = indexType.openCursor(typeRange);
+            request.onsuccess = function (event) {
+              const cursor = event.target.result;
+              if (cursor) {
+                filteredData.push(cursor.value);
+                cursor.continue();
+              } else {
+                resolve(filteredData);
+              }
+            };
+          } else {
+            // Fetch all data if neither category nor type is specified
+            request = objectStore.openCursor();
+            request.onsuccess = function (event) {
+              const cursor = event.target.result;
+              if (cursor) {
+                filteredData.push(cursor.value);
+                cursor.continue();
+              } else {
+                resolve(filteredData);
+              }
+            };
+          }
+        }).catch((error) => {
           reject(error);
-        }
-      });
-    };
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+  const combineRanges = (range1, range2) => {
+    // Combine two IDBKeyRanges into a single range
+    const lower = range1.lower < range2.lower ? range1.lower : range2.lower;
+    const upper = range1.upper > range2.upper ? range1.upper : range2.upper;
+  
+    // Ensure that the lower key is less than or equal to the upper key
+    return lower <= upper ? IDBKeyRange.bound(lower, upper) : null;
+  };
   
 
+
   return (
-    <DataContext.Provider value={{ data, setData, addDataToIndexedDB, fetchDataByCategory }}>
+    <DataContext.Provider value={{ data, setData, addDataToIndexedDB, fetchDataByCategoryAndType }}>
       {children}
     </DataContext.Provider>
   );

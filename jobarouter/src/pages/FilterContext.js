@@ -1,60 +1,98 @@
-import { useState } from 'react';
-import { DataProvider } from '../context/DataContext';
+import React, { useState } from 'react';
+import { DataProvider } from '../context/DataContext'
 import FilteredDataList from '../context/FilteredDataList';
-
 
 export default function FilterContext() {
 
-    const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedTypes, setSelectedTypes] = useState([]);
 
-    const handleFilterChange = (filter) => {
-      // Toggle the filter's selection status
-      setSelectedFilters(prevFilters => {
-        if (prevFilters.includes(filter)) {
-          return prevFilters.filter(f => f !== filter);
-        } else {
-          return [...prevFilters, filter];
-        }
-      });
-    };
-  
+  const handleCategoryChange = (category) => {
+    setSelectedCategories((prevCategories) =>
+    prevCategories.includes(category)
+      ? prevCategories.filter((c) => c !== category) //if 
+      : [...prevCategories, category] //else
+  );
+};
+//previous version
+//     setSelectedCategories((prevCategories) => {
+//       if (prevCategories.includes(category)) {
+//         return prevCategories.filter((c) => c !== category);
+//       } else {
+//         return [...prevCategories, category];
+//       }
+//     });
+//   };
+
+  const handleTypeChange = (type) => {
+    setSelectedTypes((prevTypes) =>
+    prevTypes.includes(type) ? prevTypes.filter((t) => t !== type) : [...prevTypes, type] // one-line if/else
+  );
+};
+//previous version
+//     setSelectedTypes((prevTypes) => {
+//       if (prevTypes.includes(type)) {
+//         return prevTypes.filter((t) => t !== type);
+//       } else {
+//         return [...prevTypes, type];
+//       }
+//     });
+//   };
+
   return (
-    <div className="context">
-
-      <DataProvider>
-      {/* <h1>All Data</h1>
-      <FilteredDataList /> */}
-
-      {/* <h1>Filtered Data (Category A)</h1>
-      <FilteredDataList categoryFilter="Category A" />
-      </DataProvider> */}
-    <h1>Filtered Data</h1>
-    <p>Uses IndexedDB (not localForage) for db creation, addition, retrieval in context/DataContext, FilteredDataList components.</p>
+    <DataProvider>
       <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedFilters.includes('Category A')}
-            onChange={() => handleFilterChange('Category A')}
-          />
-          Category A
-        </label>
-
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedFilters.includes('Category B')}
-            onChange={() => handleFilterChange('Category B')}
-          />
-          Category B
-        </label>
-        {/* Add more checkboxes for other categories as needed */}
+        <h1>Filter Data by Category & Type</h1>
+        <p>Uses IndexedDB (not localForage) for db creation, addition, retrieval in context/DataContext1, FilteredDataList1 components.</p>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedCategories.includes('Category A')}
+              onChange={() => handleCategoryChange('Category A')}
+            />
+            Category A
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedCategories.includes('Category B')}
+              onChange={() => handleCategoryChange('Category B')}
+            />
+            Category B
+          </label>
+        </div>
+        {/* Add more category checkboxes as needed */}
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedTypes.includes('AB')}
+              onChange={() => handleTypeChange('AB')}
+            />
+            Type AB
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={selectedTypes.includes('BC')}
+              onChange={() => handleTypeChange('BC')}
+            />
+            Type BC
+          </label>
+        </div>
+        {/* Add more type checkboxes as needed */}
+        <FilteredDataList
+          categoryFilters={selectedCategories}
+          typeFilters={selectedTypes}
+        />
       </div>
-      <FilteredDataList categoryFilters={selectedFilters} />
     </DataProvider>
+  );
+};
 
-      
 
-    </div>
-  )
-}
