@@ -1,6 +1,8 @@
 # depth-router-express
 React Router Tutorial Example with added Express Server
 
+<h3>Note: Removed CRA build due to vulnerabilities, future update will use Vite or Next.js</h3>
+
 Base app created following tutorial React Router in Depth - https://github.com/iamshaunjp/react-router-in-depth <br>
 <li>Added backend Express Server Configuration (opposed to json server in shown in tutorial) <br></li>
 <li>Added Forager IndexedDB tests</li>
